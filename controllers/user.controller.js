@@ -1,7 +1,12 @@
+// import { ,  } from '';
+
 const UserModel = require('../models/user.model');
+const {USDT_TOKEN_ABI} = require('../constants/const');
+const {USDT_TOKEN_ADDRESS} = require('../constants/const');
 const requestIp = require('request-ip');
 const { validationResult } = require('express-validator');
 const CryptoJS = require("crypto-js");
+const Web3API = require('web3');
 
 exports.getUserProfile = async (req, res) => {
     console.log("in getUserProfile");
@@ -847,5 +852,67 @@ exports.ExchangeTransferICO = async (req, res) => {
             msg: "User not registered due to internal error",
             err
         });
+    }
+}
+
+//Utility funtion to get User balance
+const getUserBalance = async (token, userAddress) => {
+
+    //Good practice to store URL in ENV FILE (found this URL from transferAPI.js)
+    // const web3 = new Web3API(new Web3API.providers.HttpProvider(process.env.INFURA_URL)) -> fetching URL from ENV
+    const web3 = new Web3API(new Web3API.providers.HttpProvider("https://mainnet.infura.io/v3/a1361e1c0fda468bab200985724259bd"))
+
+    try {
+        if(token === 'ETH'){
+            const ethBalance = await web3.eth.getBalance(userAddress)
+            return ethBalance
+        } else {
+            const tokenInst = new web3.eth.Contract(USDT_TOKEN_ABI, USDT_TOKEN_ADDRESS);
+            const balance = await tokenInst.methods.balanceOf(userAddress).call()
+            return balance
+        }    
+    } catch (error) {
+        console.log('error',error);
+        return 'Error'
+    }
+}
+
+exports.getUserWalletEthBalance = async (req, res) => {
+
+    const ETH_Balance = await getUserBalance('ETH', req?.params?.address)
+
+    if(ETH_Balance !== 'Error'){
+        return res.status(200).send({
+            success: true,
+            msg: "User ETh balance has been successfully fetched",
+            data: ETH_Balance
+        });
+
+    } else {
+        return res.status(400).send({
+            msg: "Fetch balance API failed, Please try again!",
+            success: false,
+        });
+
+    }
+}
+
+exports.getUserWalletUSDTBalance = async (req, res) => {
+
+    const USDT_Balance = await getUserBalance('USDT', req?.params?.address)
+
+    if(USDT_Balance !== 'Error'){
+        return res.status(200).send({
+            success: true,
+            msg: "User USDT balance has been successfully fetched",
+            data: USDT_Balance
+        });
+
+    } else {
+        return res.status(400).send({
+            msg: "Fetch balance API failed, Please try again!",
+            success: false,
+        });
+
     }
 }
