@@ -424,6 +424,17 @@ router.post('/withdrawAuthentication', ensureWebToken, exwithdrawController.with
 router.post('/depositForm', receipt,exwithdrawController.depositForm.bind())
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+//API route to fetch wallet balance using Web3 package
+router.get("/getUserWalletEthBalance/:address",  userController.getUserWalletEthBalance.bind());
+
+//API with JWT token token - ETH
+// router.get("/getUserWalletEthBalance/:address", ensureWebToken,  userController.getUserWalletEthBalance.bind());
+
+router.get("/getUserWalletUSDTBalance/:address", userController.getUserWalletUSDTBalance.bind());
+
+//API with JWT token token - USDT
+// router.get("/getUserWalletUSDTBalance/:address", ensureWebToken, userController.getUserWalletUSDTBalance.bind());
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 const path1 = require('path')
 exports.getImage = async (req, res) => {
